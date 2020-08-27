@@ -1,0 +1,27 @@
+---
+# Begin RedHat tasks file
+- name: Create a temp directory
+  tempfile:
+    state: directory
+    prefix: "{{ nix_software_name }}"
+  register: nix_software_tgz_path
+
+- name: Print Temp directory path
+  debug:
+    msg: "Temp directory is located at: {{ nix_software_tgz_path }}"
+
+- name: Pull TGZ from web
+  become: yes
+  get_url:
+    url: "{{ nix_software_url }}"
+    dest: "{{ nix_software_tgz_path.path }}/{{ nix_software_tar_name }}"
+    mode: '666'
+    validate_certs: no
+
+- name: Unarchive the pulled tgz
+  become: yes
+    src: "{{ nix_software_tgz_path.path }}/{{ nix_software_tar_name }}"
+    dest: "{{ nix_software_dest_folder }}"
+    remote_src: yes
+    group: root
+
